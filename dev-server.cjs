@@ -3,13 +3,7 @@
 const express = require('express');
 const http = require('http');
 const httpProxy = require('http-proxy');
-
-// Mock send email handler for dev
-const sendEmailHandler = (req, res) => {
-  const { email, subject, html } = req.body;
-  console.log('Mock: Send email to', email);
-  res.json({ success: true, id: 'mock-' + Date.now() });
-};
+const sendEmailHandler = require('./api/send-email.cjs');
 
 const app = express();
 const proxy = httpProxy.createProxyServer({});
