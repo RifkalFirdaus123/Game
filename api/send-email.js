@@ -44,7 +44,7 @@ const handler = async (req, res) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Gauntlet Game <onboarding@resend.dev>',
+        from: 'Gauntlet <delivery@resend.dev>',
         to: email,
         subject: subject,
         html: html
