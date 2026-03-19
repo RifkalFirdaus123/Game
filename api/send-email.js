@@ -1,4 +1,7 @@
 const handler = async (req, res) => {
+  // Set JSON response header dari awal
+  res.setHeader("Content-Type", "application/json");
+  
   // Handle CORS
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -24,7 +27,12 @@ const handler = async (req, res) => {
     const { email, subject, html } = req.body;
 
     if (!email || !subject || !html) {
-      console.error('Missing fields:', { email: !!email, subject: !!subject, html: !!html });
+      console.error('Missing fields:', { 
+        hasEmail: !!email, 
+        hasSubject: !!subject, 
+        hasHtml: !!html,
+        body: req.body 
+      });
       return res.status(400).json({ error: 'Missing required fields: email, subject, and html are all required' });
     }
 
@@ -33,8 +41,10 @@ const handler = async (req, res) => {
     
     if (!resendApiKey) {
       console.error('RESEND_API_KEY not configured');
-      return res.status(500).json({ error: 'Email service not configured' });
+      return res.status(500).json({ error: 'Email service not configured - please set RESEND_API_KEY' });
     }
+
+    console.log('Sending email to:', email);
 
     // Kirim email via Resend API
     const response = await fetch('https://api.resend.com/emails', {
@@ -56,16 +66,24 @@ const handler = async (req, res) => {
     if (!response.ok) {
       console.error('Resend API error:', {
         status: response.status,
-        data: data
+        message: data.message,
+        fullData: data
       });
-      return res.status(response.status).json({ error: data.message || 'Failed to send email' });
+      return res.status(response.status).json({ 
+        error: data.message || 'Failed to send email',
+        details: data
+      });
     }
 
     console.log('Email sent successfully via Resend:', data.id);
     return res.status(200).json({ success: true, id: data.id });
   } catch (error) {
     console.error("Send email error:", error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ 
+      error: error.message || 'Internal server error',
+      type: error.name,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
