@@ -1323,12 +1323,6 @@ export default function App() {
         </GameContainer>
       ) : null}
 
-      {currentStep === 7 ? (
-        <GameContainer title="Berhasil" subtitle="Terima kasih sudah bermain.">
-          <SuccessStage />
-        </GameContainer>
-      ) : null}
-
       {currentStep === 8 ? (
         <GameContainer title="Admin" subtitle="Login untuk mengedit template email.">
           <AdminLoginStage
