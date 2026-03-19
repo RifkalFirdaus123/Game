@@ -82,7 +82,7 @@ function StartStage({ onStart, onAdmin }) {
           Jadi ade 5 level ya ges yak
         </div>
         <p className="mt-3 text-sm sm:text-base text-zinc-700">
-          main kan semue nye kalo sesai nanti masukkan nama mu. ye bebas la
+          main kan semue nye kalo sesai nanti daget nye di kirim ke email. kalo nda mau yaudah juga, ye bebas la
         </p>
       </div>
 
@@ -99,7 +99,7 @@ function StartStage({ onStart, onAdmin }) {
         onClick={onAdmin}
         className="w-full min-h-[4rem] rounded-xl bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-500/20 active:scale-95 transition-transform font-bold text-xl shadow-[0_0_30px_rgba(16,185,129,0.12)]"
       >
-        🔐 Admin Panel
+        🔐 Admin Panel khusus saye
       </button>
 
       <div className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
