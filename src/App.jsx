@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { IdulfitriDecorationsV2, PixelTransition } from "./components";
+import { addWinner } from "./utils/winnersDB";
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -1010,6 +1011,13 @@ function EmailInputStage({ onSuccess, emailTemplate, onGenerateLink, successMess
     // Simpan nama pemenang
     if (onSetWinnerName) {
       onSetWinnerName(nameTrimmed);
+    }
+    
+    // Simpan ke database IndexedDB
+    try {
+      addWinner(nameTrimmed, link).catch(err => console.error("Failed to save winner:", err));
+    } catch (error) {
+      console.error("Failed to add winner:", error);
     }
     
     // Panggil callback untuk menyimpan nama/link jika perlu

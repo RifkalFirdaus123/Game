@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import WinnersTable from "../components/WinnersTable";
 
 const ADMIN_USERNAME = "aku";
 const ADMIN_PASSWORD = "12345678";
@@ -65,7 +66,7 @@ function AdminLoginPanel({ onLoginSuccess, onBackToGame }) {
   );
 }
 
-function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTestEmail }) {
+function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTestEmail, activeTab, setActiveTab }) {
   const [savedPulse, setSavedPulse] = useState(false);
   const [successMessage, setSuccessMessage] = useState(emailTemplate.successMessage || "Selamat! Kamu Menang! 🎉");
   const [successSubtitle, setSuccessSubtitle] = useState(emailTemplate.successSubtitle || "Ini adalah link khusus kamu:");
@@ -96,83 +97,118 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="text-2xl sm:text-3xl font-black tracking-tight">Edit Pesan Kemenangan</div>
-
-      {/* Success Message Section */}
-      <div className="rounded-2xl bg-blue-50/80 border border-blue-200/70 p-4 sm:p-5">
-        <div className="text-lg font-black text-blue-900 mb-3">💬 Pesan Kemenangan</div>
-        
-        <div className="text-xs text-zinc-600 mb-2">Pesan utama saat menang</div>
-        <input
-          type="text"
-          value={successMessage}
-          onChange={(e) => setSuccessMessage(e.target.value)}
-          className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-blue-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-blue-500/40"
-          placeholder="Selamat! Kamu Menang! 🎉"
-          aria-label="Success message"
-        />
-
-        <div className="text-xs text-zinc-600 mt-4 mb-2">Subtitle pesan</div>
-        <input
-          type="text"
-          value={successSubtitle}
-          onChange={(e) => setSuccessSubtitle(e.target.value)}
-          className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-blue-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-blue-500/40"
-          placeholder="Ini adalah link khusus kamu:"
-          aria-label="Success subtitle"
-        />
-
-        <div className="mt-3 p-3 bg-white rounded-lg">
-          <div className="text-xs text-zinc-600 mb-2">Preview</div>
-          <div className="text-lg font-black text-blue-700">{successMessage || "Selamat! Kamu Menang! 🎉"}</div>
-          <div className="text-sm text-zinc-600 mt-2">{successSubtitle || "Ini adalah link khusus kamu:"}</div>
-        </div>
-      </div>
-
-      {/* Link Configuration Section */}
-      <div className="rounded-2xl bg-purple-50/80 border border-purple-200/70 p-4 sm:p-5">
-        <div className="text-lg font-black text-purple-900 mb-3">🔗 Konfigurasi Link</div>
-        
-        <div className="text-xs text-zinc-600 mb-2">Base URL untuk generate link</div>
-        <input
-          type="url"
-          value={linkBaseUrl}
-          onChange={(e) => setLinkBaseUrl(e.target.value)}
-          className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-purple-200/70 px-4 text-sm outline-none focus:ring-2 focus:ring-purple-500/40"
-          placeholder="https://example.com"
-          aria-label="Link base URL"
-        />
-
-        <div className="mt-3 p-3 bg-white rounded-lg">
-          <div className="text-xs text-zinc-600 mb-2">Contoh Link yang di-generate</div>
-          <code className="text-xs text-purple-700 font-mono break-all">
-            {linkBaseUrl || "(Link akan sesuai dengan apa yang Anda ketik di atas)"}
-          </code>
-        </div>
-      </div>
-
-      <div className="mt-6 flex gap-3">
+      {/* Tab Navigation */}
+      <div className="flex gap-2 border-b border-emerald-200/70">
         <button
-          type="button"
-          onClick={handleSaveClick}
-          className="flex-1 min-h-[3rem] rounded-xl bg-green-600 hover:bg-green-500 active:scale-95 transition-transform font-bold text-lg shadow-[0_0_30px_rgba(34,197,94,0.25)]"
+          onClick={() => setActiveTab("settings")}
+          className={`px-4 py-3 font-bold text-sm transition-colors ${
+            activeTab === "settings"
+              ? "text-emerald-600 border-b-2 border-emerald-600"
+              : "text-zinc-600 hover:text-zinc-900"
+          }`}
         >
-          {savedPulse ? "✓ Tersimpan!" : "💾 Simpan"}
+          ⚙️ Pengaturan Pesan
         </button>
         <button
-          type="button"
-          onClick={onBackToGame}
-          className="min-w-[6rem] min-h-[3rem] rounded-xl bg-white/80 hover:bg-emerald-50/90 active:scale-95 transition-transform border border-emerald-200/70 font-bold text-lg"
+          onClick={() => setActiveTab("winners")}
+          className={`px-4 py-3 font-bold text-sm transition-colors ${
+            activeTab === "winners"
+              ? "text-emerald-600 border-b-2 border-emerald-600"
+              : "text-zinc-600 hover:text-zinc-900"
+          }`}
         >
-          Keluar
+          📊 Daftar Pemenang
         </button>
       </div>
+
+      {/* Settings Tab */}
+      {activeTab === "settings" && (
+        <>
+          <div className="text-2xl sm:text-3xl font-black tracking-tight">Edit Pesan Kemenangan</div>
+
+          {/* Success Message Section */}
+          <div className="rounded-2xl bg-blue-50/80 border border-blue-200/70 p-4 sm:p-5">
+            <div className="text-lg font-black text-blue-900 mb-3">💬 Pesan Kemenangan</div>
+            
+            <div className="text-xs text-zinc-600 mb-2">Pesan utama saat menang</div>
+            <input
+              type="text"
+              value={successMessage}
+              onChange={(e) => setSuccessMessage(e.target.value)}
+              className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-blue-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-blue-500/40"
+              placeholder="Selamat! Kamu Menang! 🎉"
+              aria-label="Success message"
+            />
+
+            <div className="text-xs text-zinc-600 mt-4 mb-2">Subtitle pesan</div>
+            <input
+              type="text"
+              value={successSubtitle}
+              onChange={(e) => setSuccessSubtitle(e.target.value)}
+              className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-blue-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-blue-500/40"
+              placeholder="Ini adalah link khusus kamu:"
+              aria-label="Success subtitle"
+            />
+
+            <div className="mt-3 p-3 bg-white rounded-lg">
+              <div className="text-xs text-zinc-600 mb-2">Preview</div>
+              <div className="text-lg font-black text-blue-700">{successMessage || "Selamat! Kamu Menang! 🎉"}</div>
+              <div className="text-sm text-zinc-600 mt-2">{successSubtitle || "Ini adalah link khusus kamu:"}</div>
+            </div>
+          </div>
+
+          {/* Link Configuration Section */}
+          <div className="rounded-2xl bg-purple-50/80 border border-purple-200/70 p-4 sm:p-5">
+            <div className="text-lg font-black text-purple-900 mb-3">🔗 Konfigurasi Link</div>
+            
+            <div className="text-xs text-zinc-600 mb-2">Base URL untuk generate link</div>
+            <input
+              type="url"
+              value={linkBaseUrl}
+              onChange={(e) => setLinkBaseUrl(e.target.value)}
+              className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-purple-200/70 px-4 text-sm outline-none focus:ring-2 focus:ring-purple-500/40"
+              placeholder="https://example.com"
+              aria-label="Link base URL"
+            />
+
+            <div className="mt-3 p-3 bg-white rounded-lg">
+              <div className="text-xs text-zinc-600 mb-2">Contoh Link yang di-generate</div>
+              <code className="text-xs text-purple-700 font-mono break-all">
+                {linkBaseUrl || "(Link akan sesuai dengan apa yang Anda ketik di atas)"}
+              </code>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSaveClick}
+            className="flex-1 min-h-[3rem] rounded-xl bg-green-600 hover:bg-green-500 active:scale-95 transition-transform font-bold text-lg shadow-[0_0_30px_rgba(34,197,94,0.25)]"
+          >
+            {savedPulse ? "✓ Tersimpan!" : "💾 Simpan"}
+          </button>
+        </>
+      )}
+
+      {/* Winners Tab */}
+      {activeTab === "winners" && (
+        <WinnersTable />
+      )}
+
+      {/* Exit Button */}
+      <button
+        type="button"
+        onClick={onBackToGame}
+        className="min-w-[6rem] min-h-[3rem] rounded-xl bg-white/80 hover:bg-emerald-50/90 active:scale-95 transition-transform border border-emerald-200/70 font-bold text-lg"
+      >
+        Keluar
+      </button>
     </div>
   );
 }
 
 export default function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState("settings");
   const [emailTemplate, setEmailTemplate] = useState({
     subject: "Tautan Gauntlet Anda - {{name}}",
     body: "Halo {{name}}!\n\nSelamat datang di Gauntlet! Klik tautan berikut untuk mulai bermain:\n\n{{link}}\n\nEmail Anda: {{email}}\n\nGood luck!",
@@ -206,7 +242,7 @@ export default function AdminPanel() {
               <div>
                 <div className="text-xl sm:text-2xl font-black tracking-tight">Admin Panel</div>
                 <div className="mt-1 text-sm sm:text-base text-zinc-700">
-                  {isLoggedIn ? "Template Email" : "Login untuk akses"}
+                  {isLoggedIn ? (activeTab === "settings" ? "Pengaturan Pesan" : "Daftar Pemenang") : "Login untuk akses"}
                 </div>
               </div>
             </div>
@@ -223,6 +259,8 @@ export default function AdminPanel() {
                 setEmailTemplate={setEmailTemplate}
                 onBackToGame={() => setIsLoggedIn(false)}
                 onTestEmail={() => {}}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
               />
             )}
           </div>
