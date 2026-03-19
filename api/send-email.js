@@ -1,5 +1,25 @@
 const nodemailer = require('nodemailer');
 
+// Body parser middleware untuk JSON
+const parseJSONBody = async (req) => {
+  if (req.body) return req.body;
+  
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => {
+      data += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(data));
+      } catch (e) {
+        reject(e);
+      }
+    });
+    req.on('error', reject);
+  });
+};
+
 const handler = async (req, res) => {
   // Handle CORS
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -23,10 +43,18 @@ const handler = async (req, res) => {
   }
 
   try {
-    const { email, subject, html } = req.body;
+    // Parse body dengan lebih aman
+    let body = req.body;
+    
+    if (!body || typeof body === 'string' || Object.keys(body).length === 0) {
+      body = await parseJSONBody(req);
+    }
+
+    const { email, subject, html } = body;
 
     if (!email || !subject || !html) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      console.error('Missing fields:', { email: !!email, subject: !!subject, html: !!html });
+      return res.status(400).json({ error: 'Missing required fields: email, subject, and html are all required' });
     }
 
     // Validasi config SMTP
