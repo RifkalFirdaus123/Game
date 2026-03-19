@@ -1,31 +1,36 @@
-export const config = {
-  runtime: 'edge',
-};
+const handler = async (req, res) => {
+  // Handle CORS
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
 
-export default async function handler(req) {
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { email, subject, html } = await req.json();
+    const { email, subject, html } = req.body;
 
     if (!email || !subject || !html) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const apiKey = process.env.RESEND_API_KEY;
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.error("RESEND_API_KEY not configured");
+      return res.status(500).json({ error: 'API key not configured' });
     }
 
     const response = await fetch('https://api.resend.com/emails', {
@@ -45,20 +50,18 @@ export default async function handler(req) {
     const data = await response.json();
 
     if (!response.ok) {
-      return new Response(JSON.stringify({ error: data.message || 'Failed to send email' }), {
+      console.error("Resend API error response:", {
         status: response.status,
-        headers: { 'Content-Type': 'application/json' }
+        data: data
       });
+      return res.status(response.status).json({ error: data.message || 'Failed to send email' });
     }
 
-    return new Response(JSON.stringify({ success: true, id: data.id }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return res.status(200).json({ success: true, id: data.id });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error("Send email error:", error);
+    return res.status(500).json({ error: error.message });
   }
-}
+};
+
+module.exports = handler;
