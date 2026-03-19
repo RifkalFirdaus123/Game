@@ -1,7 +1,3 @@
-const { Resend } = require("resend");
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 module.exports = async function handler(req, res) {
   // Handle CORS
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -31,6 +27,12 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "Email required" });
     }
 
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.error("RESEND_API_KEY not configured");
+      return res.status(500).json({ error: "API key not configured" });
+    }
+
     const subject = (template?.subject || "Tautan Gauntlet Anda")
       .replace("{{name}}", "Test User")
       .replace("{{email}}", email)
@@ -41,25 +43,39 @@ module.exports = async function handler(req, res) {
       .replace("{{email}}", email)
       .replace("{{link}}", "https://example.com/gauntlet");
 
-    const response = await resend.emails.send({
-      from: "Gauntlet Game <onboarding@resend.dev>",
-      to: email,
-      subject: subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>${subject}</h2>
-          <p>${body.replace(/\n/g, "<br>")}</p>
-        </div>
-      `
+    // Send via Resend API using fetch
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Gauntlet Game <onboarding@resend.dev>",
+        to: email,
+        subject: subject,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>${subject}</h2>
+            <p>${body.replace(/\n/g, "<br>")}</p>
+          </div>
+        `
+      })
     });
 
-    if (response.error) {
-      return res.status(400).json({ error: response.error.message });
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Resend API error:", {
+        status: response.status,
+        data: data
+      });
+      return res.status(response.status).json({ error: data.message || "Failed to send email" });
     }
 
-    return res.status(200).json({ success: true, id: response.data.id });
+    return res.status(200).json({ success: true, id: data.id });
   } catch (error) {
     console.error("Test email error:", error);
     return res.status(500).json({ error: error.message });
   }
-}
+};
