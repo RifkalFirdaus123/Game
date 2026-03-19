@@ -71,14 +71,26 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
   const [successSubtitle, setSuccessSubtitle] = useState(emailTemplate.successSubtitle || "Ini adalah link khusus kamu:");
   const [linkBaseUrl, setLinkBaseUrl] = useState(emailTemplate.linkBaseUrl || "");
 
+  // Sinkronisasi state lokal ketika emailTemplate berubah
+  useEffect(() => {
+    setSuccessMessage(emailTemplate.successMessage || "Selamat! Kamu Menang! 🎉");
+    setSuccessSubtitle(emailTemplate.successSubtitle || "Ini adalah link khusus kamu:");
+    setLinkBaseUrl(emailTemplate.linkBaseUrl || "");
+  }, [emailTemplate]);
+
   const handleSaveClick = () => {
     setSavedPulse(true);
-    setEmailTemplate(t => ({
-      ...t,
+    const newTemplate = {
+      ...emailTemplate,
       successMessage: successMessage,
       successSubtitle: successSubtitle,
       linkBaseUrl: linkBaseUrl
-    }));
+    };
+    setEmailTemplate(newTemplate);
+    
+    // Emit custom event agar App.jsx tau ada perubahan (untuk tab yang sama)
+    window.dispatchEvent(new CustomEvent('gauntletEmailTemplateUpdated', { detail: newTemplate }));
+    
     window.setTimeout(() => setSavedPulse(false), 900);
   };
 

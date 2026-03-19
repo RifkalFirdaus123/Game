@@ -1184,7 +1184,7 @@ export default function App() {
     }
   }, [emailTemplate]);
 
-  // Listen to localStorage changes from admin panel
+  // Listen to localStorage changes from admin panel (other tabs)
   useEffect(() => {
     const handleStorageChange = () => {
       try {
@@ -1198,8 +1198,22 @@ export default function App() {
       }
     };
 
+    // Listen untuk custom event dari admin panel (tab yang sama)
+    const handleCustomEvent = (e) => {
+      try {
+        setEmailTemplate(prev => ({ ...prev, ...e.detail }));
+      } catch {
+        // ignore
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('gauntletEmailTemplateUpdated', handleCustomEvent);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('gauntletEmailTemplateUpdated', handleCustomEvent);
+    };
   }, []);
 
   const exitAdminToGame = () => {
