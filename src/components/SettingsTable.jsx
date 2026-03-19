@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSettings, updateSettings, resetSettings } from "../utils/settingsDB";
+import { getSettings, updateSettings, resetSettings, listenToSettings } from "../utils/settingsSync";
 
 export default function SettingsTable() {
   const [settings, setSettings] = useState({
@@ -12,12 +12,23 @@ export default function SettingsTable() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // Load settings on mount
+  // Load settings on mount dan listen to Firebase changes
   useEffect(() => {
     loadSettings();
+    
+    // Listen to real-time changes dari Firebase
+    const unsubscribe = listenToSettings((data) => {
+      setSettings({
+        title: data.title,
+        subtitle: data.subtitle,
+        link: data.link
+      });
+    });
+    
+    return () => unsubscribe?.();
   }, []);
 
-  // Listen for settings updates from other tabs
+  // Listen for settings updates from custom events (fallback)
   useEffect(() => {
     const handleSettingsUpdate = (e) => {
       setSettings({

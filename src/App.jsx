@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { IdulfitriDecorationsV2, PixelTransition } from "./components";
-import { getSettings } from "./utils/settingsDB";
+import { getSettings, listenToSettings } from "./utils/settingsSync";
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -993,17 +993,17 @@ function EmailInputStage({ onSuccess, emailTemplate, onGenerateLink, successMess
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Load settings from database when component mounts
+    // Load settings from Firebase when component mounts
     getSettings().then(settings => {
       setDisplaySettings(settings);
     });
 
-    // Listen for settings updates
-    const handleSettingsUpdate = (e) => {
-      setDisplaySettings(e.detail);
-    };
-    window.addEventListener('settingsUpdated', handleSettingsUpdate);
-    return () => window.removeEventListener('settingsUpdated', handleSettingsUpdate);
+    // Listen for real-time Firebase changes
+    const unsubscribe = listenToSettings((settings) => {
+      setDisplaySettings(settings);
+    });
+    
+    return () => unsubscribe?.();
   }, []);
 
   const handleShowLink = (e) => {

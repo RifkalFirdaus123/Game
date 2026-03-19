@@ -66,7 +66,7 @@ function AdminLoginPanel({ onLoginSuccess, onBackToGame }) {
   );
 }
 
-function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTestEmail, activeTab, setActiveTab }) {
+function AdminEmailEditor({ onBackToGame }) {
   return (
     <div className="flex flex-col gap-4">
       {/* Settings Table */}
@@ -86,29 +86,6 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
 
 export default function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [activeTab, setActiveTab] = useState("display");
-  const [emailTemplate, setEmailTemplate] = useState({
-    subject: "Tautan Gauntlet Anda - {{name}}",
-    body: "Halo {{name}}!\n\nSelamat datang di Gauntlet! Klik tautan berikut untuk mulai bermain:\n\n{{link}}\n\nEmail Anda: {{email}}\n\nGood luck!",
-    successMessage: "Selamat! Kamu Menang! 🎉",
-    successSubtitle: "Ini adalah link khusus kamu:",
-    linkBaseUrl: ""
-  });
-
-  useEffect(() => {
-    const raw = localStorage.getItem("gauntlet_admin_email_template_v1");
-    if (raw) {
-      try {
-        setEmailTemplate(JSON.parse(raw));
-      } catch (e) {
-        console.error("Failed to load template:", e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("gauntlet_admin_email_template_v1", JSON.stringify(emailTemplate));
-  }, [emailTemplate]);
 
   return (
     <div className="min-h-[100dvh] w-full overscroll-y-contain touch-manipulation flex flex-col">
