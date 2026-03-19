@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { IdulfitriDecorationsV2, PixelTransition } from "./components";
-import { addWinner } from "./utils/winnersDB";
+import { getSettings } from "./utils/settingsDB";
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -989,7 +989,22 @@ function EmailInputStage({ onSuccess, emailTemplate, onGenerateLink, successMess
   const [name, setName] = useState("");
   const [showLink, setShowLink] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
+  const [displaySettings, setDisplaySettings] = useState(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // Load settings from database when component mounts
+    getSettings().then(settings => {
+      setDisplaySettings(settings);
+    });
+
+    // Listen for settings updates
+    const handleSettingsUpdate = (e) => {
+      setDisplaySettings(e.detail);
+    };
+    window.addEventListener('settingsUpdated', handleSettingsUpdate);
+    return () => window.removeEventListener('settingsUpdated', handleSettingsUpdate);
+  }, []);
 
   const handleShowLink = (e) => {
     e.preventDefault();
@@ -1001,7 +1016,10 @@ function EmailInputStage({ onSuccess, emailTemplate, onGenerateLink, successMess
     }
 
     const nameTrimmed = name.trim();
-    const link = (emailTemplate.linkBaseUrl && emailTemplate.linkBaseUrl.trim()) 
+    // Use link from settings if available, otherwise fall back to emailTemplate
+    const link = (displaySettings?.link && displaySettings.link.trim()) 
+      ? displaySettings.link.trim()
+      : (emailTemplate.linkBaseUrl && emailTemplate.linkBaseUrl.trim()) 
       ? emailTemplate.linkBaseUrl.trim() 
       : window.location.origin;
     
@@ -1013,26 +1031,23 @@ function EmailInputStage({ onSuccess, emailTemplate, onGenerateLink, successMess
       onSetWinnerName(nameTrimmed);
     }
     
-    // Simpan ke database IndexedDB
-    try {
-      addWinner(nameTrimmed, link).catch(err => console.error("Failed to save winner:", err));
-    } catch (error) {
-      console.error("Failed to add winner:", error);
-    }
-    
     // Panggil callback untuk menyimpan nama/link jika perlu
     if (onGenerateLink) {
       onGenerateLink(nameTrimmed, link);
     }
   };
 
+  // Use settings from database if available, otherwise fall back to emailTemplate
+  const finalSuccessMessage = displaySettings?.title || successMessage || "Selamat! Kamu Menang! 🎉";
+  const finalSuccessSubtitle = displaySettings?.subtitle || successSubtitle || "Ini adalah link khusus kamu:";
+
   if (showLink) {
     return (
       <GameContainer title="Kemenangan.">
         <SuccessStage 
           generatedLink={generatedLink}
-          successMessage={successMessage}
-          successSubtitle={successSubtitle}
+          successMessage={finalSuccessMessage}
+          successSubtitle={finalSuccessSubtitle}
           winnerName={name}
         />
         <div className="mt-4 flex gap-2">
