@@ -1029,6 +1029,8 @@ function NameInputStage({ onSuccess, setWinnerName }) {
 }
 
 function SuccessStage({ winnerName, linkTemplate }) {
+  const [copied, setCopied] = useState(false);
+
   const generateLink = () => {
     return linkTemplate
       .replace("[name]", encodeURIComponent(winnerName))
@@ -1038,15 +1040,22 @@ function SuccessStage({ winnerName, linkTemplate }) {
 
   const winnerLink = generateLink();
   
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(winnerLink).catch(() => {
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(winnerLink);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback untuk browser lama
       const textarea = document.createElement('textarea');
       textarea.value = winnerLink;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-    });
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -1068,24 +1077,53 @@ function SuccessStage({ winnerName, linkTemplate }) {
         Terima kasih sudah bermain!
       </div>
 
-      <div className="mt-6 w-full rounded-2xl bg-emerald-50/60 border border-emerald-200/70 p-4">
-        <div className="text-xs text-zinc-600 mb-2">Link Reward Kamu</div>
-        <div className="flex gap-2 items-center">
-          <input
-            type="text"
+      <div className="mt-6 w-full rounded-2xl bg-emerald-50/60 border border-emerald-200/70 p-5">
+        <div className="text-xs font-semibold text-zinc-700 mb-3 uppercase tracking-wide">Link Reward Kamu</div>
+        
+        <div className="mb-4 rounded-xl bg-white/90 border border-emerald-200/70 overflow-hidden">
+          <textarea
             readOnly
             value={winnerLink}
-            className="flex-1 min-h-[3rem] rounded-xl bg-white/90 border border-emerald-200/70 px-3 text-xs sm:text-sm font-mono outline-none break-all"
+            className="w-full min-h-[5rem] p-4 text-sm sm:text-base font-mono text-zinc-900 outline-none resize-none bg-transparent"
+            spellCheck="false"
           />
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="min-h-[3rem] min-w-[3rem] rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-transform font-bold text-white shadow-[0_0_30px_rgba(16,185,129,0.35)]"
-            title="Copy link"
-          >
-            📋
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className={[
+            "w-full min-h-[3.5rem] rounded-xl font-bold text-lg sm:text-xl transition-all",
+            copied
+              ? "bg-green-500 text-white shadow-[0_0_30px_rgba(34,197,94,0.4)]"
+              : "bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white shadow-[0_0_30px_rgba(16,185,129,0.35)]"
+          ].join(" ")}
+          title="Copy link reward"
+        >
+          {copied ? "✓ Link Sudah Dicopy!" : "📋 Copy Link"}
+        </button>
+
+        {copied && (
+          <div className="mt-3 text-center">
+            <div className="inline-block rounded-lg bg-green-50 border border-green-200/70 px-4 py-2">
+              <div className="text-sm font-semibold text-green-700">
+                ✓ Link berhasil disalin!
+              </div>
+              <div className="text-xs text-green-600 mt-1">
+                Bagikan link ini untuk menunjukkan kemenanganmu
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="w-full rounded-2xl bg-blue-50/60 border border-blue-200/70 p-4">
+        <div className="text-xs font-semibold text-blue-800 mb-2">💡 Tips</div>
+        <ul className="text-xs text-blue-700 space-y-1">
+          <li>• Klik tombol "Copy Link" untuk menyalin link reward</li>
+          <li>• Link ini unik dan berisi nama serta waktu kemenangan kamu</li>
+          <li>• Bagikan dengan teman untuk buktikan kemenangan kamu!</li>
+        </ul>
       </div>
     </div>
   );
