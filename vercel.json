@@ -4,15 +4,11 @@
   "framework": "vite",
   "outputDirectory": "dist",
   "functions": {
-    "api/**/*.js": {
+    "api/**/*.mjs": {
       "runtime": "nodejs18.x"
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1.js"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
