@@ -1020,9 +1020,9 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: emailTrimmed,
-          subject,
-          body
+          name: nameTrimmed,
+          email: emailTrimmed,
+          template: emailTemplate
         })
       });
 
@@ -1066,10 +1066,10 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full min-h-[4rem] rounded-xl bg-white/90 border border-emerald-200/70 px-4 text-xl outline-none focus:ring-2 focus:ring-emerald-500/40"
-            placeholder="nama@contoh.com"
+            placeholder="emailanda@gmail.com"
             autoComplete="email"
             disabled={isSubmitting}
-            aria-label="Input email"
+            aria-label="Input email kamu"
           />
           {error ? <div className="text-sm text-red-300">{error}</div> : null}
 

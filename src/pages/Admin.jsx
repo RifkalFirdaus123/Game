@@ -110,9 +110,8 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: testEmail,
-          subject,
-          body
+          email: testEmail,
+          template: emailTemplate
         })
       });
 
