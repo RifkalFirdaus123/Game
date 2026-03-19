@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { IdulfitriDecorationsV2, PixelTransition } from "./components";
-import { getSettings, listenToSettings } from "./utils/settingsSync";
+import { getSettings, listenToSettings } from "./utils/supabaseSettings";
 
 function shuffleArray(arr) {
   const a = [...arr];

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSettings, updateSettings, resetSettings, listenToSettings } from "../utils/settingsSync";
+import { getSettings, updateSettings, resetSettings, listenToSettings } from "../utils/supabaseSettings";
 
 export default function SettingsTable() {
   const [settings, setSettings] = useState({
