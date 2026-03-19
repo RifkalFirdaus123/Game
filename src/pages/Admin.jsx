@@ -96,7 +96,7 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="text-2xl sm:text-3xl font-black tracking-tight">Edit Pesan dan Email</div>
+      <div className="text-2xl sm:text-3xl font-black tracking-tight">Edit Pesan Kemenangan</div>
 
       {/* Success Message Section */}
       <div className="rounded-2xl bg-blue-50/80 border border-blue-200/70 p-4 sm:p-5">
