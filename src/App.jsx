@@ -893,23 +893,8 @@ function AdminLoginStage({ onLoginSuccess, onBackToGame }) {
   );
 }
 
-function AdminEmailEditorStage({ emailTemplate, setEmailTemplate, onBackToGame }) {
+function AdminEmailEditorStage({ emailTemplate, setEmailTemplate, onBackToGame, successMessage, setSuccessMessage, successSubtitle, setSuccessSubtitle }) {
   const [savedPulse, setSavedPulse] = useState(false);
-
-  const sampleName = "Rifka";
-  const sampleEmail = "contoh@domain.com";
-  const sampleLink = "https://example.com/gauntlet?demo=1";
-
-  const subjectPreview =
-    (emailTemplate.subject ?? "")
-      .replaceAll("{{name}}", sampleName)
-      .replaceAll("{{email}}", sampleEmail)
-      .replaceAll("{{link}}", sampleLink) || "—";
-  const bodyPreview =
-    (emailTemplate.body ?? "")
-      .replaceAll("{{name}}", sampleName)
-      .replaceAll("{{email}}", sampleEmail)
-      .replaceAll("{{link}}", sampleLink) || "—";
 
   const handleSaveClick = () => {
     setSavedPulse(true);
@@ -918,20 +903,54 @@ function AdminEmailEditorStage({ emailTemplate, setEmailTemplate, onBackToGame }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="text-2xl sm:text-3xl font-black tracking-tight">Editor Template Email</div>
-      <div className="text-zinc-700 text-sm sm:text-base">
-        Gunakan token: <span className="font-black text-zinc-900">{"{{name}}"}</span>,{" "}
-        <span className="font-black text-zinc-900">{"{{email}}"}</span>, dan{" "}
-        <span className="font-black text-zinc-900">{"{{link}}"}</span>.
+      <div className="text-2xl sm:text-3xl font-black tracking-tight">Edit Pesan dan Email</div>
+
+      {/* Success Message Section */}
+      <div className="rounded-2xl bg-blue-50/80 border border-blue-200/70 p-4 sm:p-5">
+        <div className="text-lg font-black text-blue-900 mb-3">💬 Pesan Kemenangan</div>
+        
+        <div className="text-xs text-zinc-600 mb-2">Pesan utama saat menang</div>
+        <input
+          type="text"
+          value={successMessage}
+          onChange={(e) => setSuccessMessage(e.target.value)}
+          className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-blue-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-blue-500/40"
+          placeholder="Selamat! Kamu Menang! 🎉"
+          aria-label="Success message"
+        />
+
+        <div className="text-xs text-zinc-600 mt-4 mb-2">Subtitle pesan</div>
+        <input
+          type="text"
+          value={successSubtitle}
+          onChange={(e) => setSuccessSubtitle(e.target.value)}
+          className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-blue-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-blue-500/40"
+          placeholder="Ini adalah link khusus kamu:"
+          aria-label="Success subtitle"
+        />
+
+        <div className="mt-3 p-3 bg-white rounded-lg">
+          <div className="text-xs text-zinc-600 mb-2">Preview</div>
+          <div className="text-lg font-black text-blue-700">{successMessage || "Selamat! Kamu Menang! 🎉"}</div>
+          <div className="text-sm text-zinc-600 mt-2">{successSubtitle || "Ini adalah link khusus kamu:"}</div>
+        </div>
       </div>
 
+      {/* Email Template Section */}
       <div className="rounded-2xl bg-white/80 border border-emerald-200/70 p-4 sm:p-5">
-        <div className="text-xs text-zinc-600 mb-2">Subject</div>
+        <div className="text-lg font-black mb-3">✉️ Template Email (opsional)</div>
+        <div className="text-zinc-700 text-sm sm:text-base">
+          Gunakan token: <span className="font-black text-zinc-900">{"{{name}}"}</span>,{" "}
+          <span className="font-black text-zinc-900">{"{{email}}"}</span>, dan{" "}
+          <span className="font-black text-zinc-900">{"{{link}}"}</span>.
+        </div>
+
+        <div className="text-xs text-zinc-600 mb-2 mt-4">Subject</div>
         <input
           type="text"
           value={emailTemplate.subject}
           onChange={(e) => setEmailTemplate((t) => ({ ...t, subject: e.target.value }))}
-          className="w-full min-h-[4rem] rounded-xl bg-white/90 border border-emerald-200/70 px-4 text-xl outline-none focus:ring-2 focus:ring-emerald-500/40"
+          className="w-full min-h-[3rem] rounded-xl bg-white/90 border border-emerald-200/70 px-4 text-base outline-none focus:ring-2 focus:ring-emerald-500/40"
           aria-label="Subject email"
         />
 
@@ -939,45 +958,39 @@ function AdminEmailEditorStage({ emailTemplate, setEmailTemplate, onBackToGame }
         <textarea
           value={emailTemplate.body}
           onChange={(e) => setEmailTemplate((t) => ({ ...t, body: e.target.value }))}
-          rows={7}
+          rows={5}
           className="w-full rounded-xl bg-white/90 border border-emerald-200/70 px-4 py-3 text-base outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
           aria-label="Body email"
         />
-
-        <div className="mt-4 flex gap-3">
-          <button
-            type="button"
-            onClick={handleSaveClick}
-            className="flex-1 min-h-[4rem] rounded-xl bg-green-600 hover:bg-green-500 active:scale-95 transition-transform font-bold text-xl shadow-[0_0_30px_rgba(34,197,94,0.25)]"
-          >
-            {savedPulse ? "Tersimpan!" : "Simpan"}
-          </button>
-          <button
-            type="button"
-            onClick={onBackToGame}
-            className="min-w-[8rem] min-h-[4rem] rounded-xl bg-white/80 hover:bg-emerald-50/90 active:scale-95 transition-transform border border-emerald-200/70 font-bold text-lg"
-          >
-            Keluar
-          </button>
-        </div>
       </div>
 
-      <div className="rounded-2xl bg-white/80 border border-emerald-200/70 p-4 sm:p-5">
-        <div className="text-xs text-zinc-600 mb-2">Preview (contoh)</div>
-        <div className="text-sm text-zinc-900 font-semibold mb-2">{subjectPreview}</div>
-        <pre className="text-sm text-zinc-700 whitespace-pre-wrap leading-relaxed">{bodyPreview}</pre>
+      <div className="mt-4 flex gap-3">
+        <button
+          type="button"
+          onClick={handleSaveClick}
+          className="flex-1 min-h-[3rem] rounded-xl bg-green-600 hover:bg-green-500 active:scale-95 transition-transform font-bold text-lg shadow-[0_0_30px_rgba(34,197,94,0.25)]"
+        >
+          {savedPulse ? "✓ Tersimpan!" : "💾 Simpan"}
+        </button>
+        <button
+          type="button"
+          onClick={onBackToGame}
+          className="min-w-[6rem] min-h-[3rem] rounded-xl bg-white/80 hover:bg-emerald-50/90 active:scale-95 transition-transform border border-emerald-200/70 font-bold text-lg"
+        >
+          Keluar
+        </button>
       </div>
     </div>
   );
 }
 
-function EmailInputStage({ onSuccess, emailTemplate }) {
+function EmailInputStage({ onSuccess, emailTemplate, onGenerateLink, successMessage, successSubtitle, onSetWinnerName }) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLink, setShowLink] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState("");
   const [error, setError] = useState("");
 
-  async function handleEmailSubmit(e) {
+  const handleShowLink = (e) => {
     e.preventDefault();
     setError("");
 
@@ -985,58 +998,46 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
       setError("Silakan masukkan nama Anda.");
       return;
     }
-    if (!email.trim()) {
-      setError("Silakan masukkan email Anda.");
-      return;
-    }
-    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      setError("Format email tersebut tidak valid.");
-      return;
-    }
 
     const nameTrimmed = name.trim();
-    const emailTrimmed = email.trim();
-    const dummyLink = `https://example.com/gauntlet?email=${encodeURIComponent(emailTrimmed)}&t=${Date.now()}`;
-
-    const subject =
-      (emailTemplate?.subject ?? "")
-        .replaceAll("{{name}}", nameTrimmed)
-        .replaceAll("{{email}}", emailTrimmed)
-        .replaceAll("{{link}}", dummyLink) ||
-      "Tautan Gauntlet Anda";
-    const body =
-      (emailTemplate?.body ?? "")
-        .replaceAll("{{name}}", nameTrimmed)
-        .replaceAll("{{email}}", emailTrimmed)
-        .replaceAll("{{link}}", dummyLink) ||
-      "Halo {{name}}! Klik tautan berikut: {{link}}";
-
-    setIsSubmitting(true);
-
-    try {
-      const resp = await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: emailTrimmed,
-          subject: subject,
-          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><h2>${subject}</h2><p>${body.replace(/\n/g, "<br>")}</p></div>`
-        })
-      });
-
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => null);
-        throw new Error(data?.message || "Gagal mengirim email.");
-      }
-
-      setIsSubmitting(false);
-      onSuccess();
-    } catch (err) {
-      setIsSubmitting(false);
-      setError(err?.message || "Gagal mengirim email.");
+    const link = (emailTemplate.linkBaseUrl && emailTemplate.linkBaseUrl.trim()) 
+      ? emailTemplate.linkBaseUrl.trim() 
+      : window.location.origin;
+    
+    setGeneratedLink(link);
+    setShowLink(true);
+    
+    // Simpan nama pemenang
+    if (onSetWinnerName) {
+      onSetWinnerName(nameTrimmed);
     }
+    
+    // Panggil callback untuk menyimpan nama/link jika perlu
+    if (onGenerateLink) {
+      onGenerateLink(nameTrimmed, link);
+    }
+  };
+
+  if (showLink) {
+    return (
+      <GameContainer title="Kemenangan.">
+        <SuccessStage 
+          generatedLink={generatedLink}
+          successMessage={successMessage}
+          successSubtitle={successSubtitle}
+          winnerName={name}
+        />
+        <div className="mt-4 flex gap-2">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="flex-1 min-h-[3rem] rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-transform font-bold text-white"
+          >
+            Mainkan Lagi
+          </button>
+        </div>
+      </GameContainer>
+    );
   }
 
   return (
@@ -1045,10 +1046,10 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
         Kemenangan.
       </div>
       <div className="text-zinc-700 text-sm sm:text-base">
-        Kamu berhasil melewati 5 tahap. Masukkan nama dan email untuk menerima tautannya.
+        Kamu berhasil melewati 5 tahap. Masukkan nama kamu untuk mendapatkan link eksklusif.
       </div>
 
-      <form onSubmit={handleEmailSubmit} className="mt-2">
+      <form onSubmit={handleShowLink} className="mt-2">
         <div className="flex flex-col gap-3">
           <input
             type="text"
@@ -1057,27 +1058,15 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
             className="w-full min-h-[4rem] rounded-xl bg-white/90 border border-emerald-200/70 px-4 text-xl outline-none focus:ring-2 focus:ring-emerald-500/40"
             placeholder="Nama kamu"
             autoComplete="name"
-            disabled={isSubmitting}
             aria-label="Input nama"
-          />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full min-h-[4rem] rounded-xl bg-white/90 border border-emerald-200/70 px-4 text-xl outline-none focus:ring-2 focus:ring-emerald-500/40"
-            placeholder="emailanda@gmail.com"
-            autoComplete="email"
-            disabled={isSubmitting}
-            aria-label="Input email kamu"
           />
           {error ? <div className="text-sm text-red-300">{error}</div> : null}
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full min-h-[4rem] rounded-xl bg-green-600 hover:bg-green-500 active:scale-95 transition-transform font-bold text-xl shadow-[0_0_30px_rgba(34,197,94,0.25)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full min-h-[4rem] rounded-xl bg-green-600 hover:bg-green-500 active:scale-95 transition-transform font-bold text-xl shadow-[0_0_30px_rgba(34,197,94,0.25)]"
           >
-            {isSubmitting ? "Mengirim..." : "Kirim Tautan"}
+            Dapatkan Link
           </button>
         </div>
       </form>
@@ -1085,7 +1074,17 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
   );
 }
 
-function SuccessStage() {
+function SuccessStage({ generatedLink, successMessage, successSubtitle, winnerName }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    if (generatedLink) {
+      navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 items-center">
       {/* Popup with tulalit.png */}
@@ -1098,11 +1097,40 @@ function SuccessStage() {
       </div>
       
       <div className="text-2xl sm:text-3xl font-black tracking-tight text-emerald-700 text-center">
-        Link nye ade di email tadi ye cobe cek
+        {successMessage || "Selamat! Kamu Menang! 🎉"}
       </div>
+
+      {winnerName && (
+        <div className="text-xl sm:text-2xl font-bold text-emerald-600 text-center">
+          {winnerName} 🌟
+        </div>
+      )}
       
-      <div className="text-sm sm:text-base text-zinc-600 text-center">
-        Terima kasih sudah bermain! 🎉
+      {successSubtitle && (
+        <div className="text-sm sm:text-base text-zinc-600 text-center">
+          {successSubtitle}
+        </div>
+      )}
+
+      {generatedLink && (
+        <div className="w-full rounded-2xl bg-emerald-50/80 border border-emerald-200/70 p-4">
+          <div className="bg-white rounded-lg p-3 mb-3 overflow-auto">
+            <code className="text-xs sm:text-sm text-emerald-700 font-mono break-all">
+              {generatedLink}
+            </code>
+          </div>
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            className="w-full min-h-[3rem] rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 transition-transform font-bold text-white"
+          >
+            {copied ? "✓ Disalin!" : "Salin Link"}
+          </button>
+        </div>
+      )}
+      
+      <div className="text-xs sm:text-sm text-zinc-600 text-center leading-relaxed">
+        Bagikan link ini dengan teman-temanmu untuk bermain game yang sama! 😊
       </div>
     </div>
   );
@@ -1111,19 +1139,25 @@ function SuccessStage() {
 export default function App() {
   const [currentStep, setCurrentStep] = useState(0); // 0..9
   const [adminAuthed, setAdminAuthed] = useState(false);
+  const [winnerName, setWinnerName] = useState("");
 
   const [emailTemplate, setEmailTemplate] = useState(() => {
     const defaultTemplate = {
       subject: "Tautan Gauntlet Anda",
       body:
-        "Halo {{name}}!\n\nSelamat! Kamu berhasil melewati 5 tahap gauntlet.\nKlik tautan berikut untuk melanjutkan:\n{{link}}\n\nTerima kasih."
+        "Halo {{name}}!\n\nSelamat! Kamu berhasil melewati 5 tahap gauntlet.\nKlik tautan berikut untuk melanjutkan:\n{{link}}\n\nTerima kasih.",
+      successMessage: "Selamat! Kamu Menang! 🎉",
+      successSubtitle: "Ini adalah link khusus kamu:",
+      linkBaseUrl: ""
     };
 
     try {
       const raw = localStorage.getItem("gauntlet_admin_email_template_v1");
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (typeof parsed?.subject === "string" && typeof parsed?.body === "string") return parsed;
+        if (typeof parsed?.subject === "string" && typeof parsed?.body === "string") {
+          return { ...defaultTemplate, ...parsed };
+        }
       }
     } catch {
       // ignore
@@ -1132,6 +1166,16 @@ export default function App() {
     return defaultTemplate;
   });
 
+  const [successMessage, setSuccessMessage] = useState(emailTemplate.successMessage || "Selamat! Kamu Menang! 🎉");
+  const [successSubtitle, setSuccessSubtitle] = useState(emailTemplate.successSubtitle || "Ini adalah link khusus kamu:");
+
+  // Sync successMessage dan successSubtitle dari emailTemplate
+  useEffect(() => {
+    setSuccessMessage(emailTemplate.successMessage || "Selamat! Kamu Menang! 🎉");
+    setSuccessSubtitle(emailTemplate.successSubtitle || "Ini adalah link khusus kamu:");
+  }, [emailTemplate.successMessage, emailTemplate.successSubtitle]);
+
+  // Save emailTemplate to localStorage
   useEffect(() => {
     try {
       localStorage.setItem("gauntlet_admin_email_template_v1", JSON.stringify(emailTemplate));
@@ -1139,6 +1183,24 @@ export default function App() {
       // ignore
     }
   }, [emailTemplate]);
+
+  // Listen to localStorage changes from admin panel
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const raw = localStorage.getItem("gauntlet_admin_email_template_v1");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setEmailTemplate(prev => ({ ...prev, ...parsed }));
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const exitAdminToGame = () => {
     setAdminAuthed(false);
@@ -1237,7 +1299,13 @@ export default function App() {
 
       {currentStep === 6 ? (
         <GameContainer title="Form Email" subtitle="Masukkan email untuk mendapatkan tautannya.">
-          <EmailInputStage onSuccess={() => setCurrentStep(7)} emailTemplate={emailTemplate} />
+          <EmailInputStage 
+            onSuccess={() => setCurrentStep(7)} 
+            emailTemplate={emailTemplate}
+            successMessage={successMessage}
+            successSubtitle={successSubtitle}
+            onSetWinnerName={setWinnerName}
+          />
         </GameContainer>
       ) : null}
 
@@ -1266,6 +1334,10 @@ export default function App() {
               emailTemplate={emailTemplate}
               setEmailTemplate={setEmailTemplate}
               onBackToGame={exitAdminToGame}
+              successMessage={successMessage}
+              setSuccessMessage={setSuccessMessage}
+              successSubtitle={successSubtitle}
+              setSuccessSubtitle={setSuccessSubtitle}
             />
           ) : (
             <AdminLoginStage
