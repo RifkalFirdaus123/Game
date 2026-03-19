@@ -105,21 +105,14 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
         .replaceAll("{{name}}", "Test User")
         .replaceAll("{{email}}", testEmail)
         .replaceAll("{{link}}", "https://example.com");
-      
-      const apiKey = import.meta.env.VITE_RESEND_API_KEY;
-      if (!apiKey) {
-        throw new Error("API key tidak tersedia. Hubungi admin.");
-      }
 
-      const resp = await fetch("https://api.resend.com/emails", {
+      const resp = await fetch("/api/send-email", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          from: "Gauntlet Game <onboarding@resend.dev>",
-          to: testEmail,
+          email: testEmail,
           subject: subject,
           html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><h2>${subject}</h2><p>${body.replace(/\n/g, "<br>")}</p></div>`
         })
