@@ -106,27 +106,34 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
         .replaceAll("{{email}}", testEmail)
         .replaceAll("{{link}}", "https://example.com");
 
+      const payload = {
+        email: testEmail,
+        subject: subject,
+        html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><h2>${subject}</h2><p>${body.replace(/\n/g, "<br>")}</p></div>`
+      };
+
+      console.log("Sending email payload:", payload);
+
       const resp = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          email: testEmail,
-          subject: subject,
-          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><h2>${subject}</h2><p>${body.replace(/\n/g, "<br>")}</p></div>`
-        })
+        body: JSON.stringify(payload)
       });
+
+      const data = await resp.json();
+      console.log("Response:", data);
 
       if (resp.ok) {
         setTestEmailSent(true);
         setTimeout(() => setTestEmailSent(false), 3000);
       } else {
-        const data = await resp.json();
-        throw new Error(data?.message || "Gagal mengirim test email");
+        throw new Error(data?.error || "Gagal mengirim test email");
       }
     } catch (err) {
       console.error("Test email error:", err);
+      alert(`Error: ${err.message}`);
     } finally {
       setTestLoading(false);
     }
