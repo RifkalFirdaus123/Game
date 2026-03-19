@@ -1,4 +1,9 @@
 const handler = async (req, res) => {
+  console.log('📨 INCOMING REQUEST');
+  console.log('URL:', req.url);
+  console.log('Method:', req.method);
+  console.log('Headers:', req.headers);
+  
   // Set JSON response header dari awal
   res.setHeader("Content-Type", "application/json");
   
@@ -24,19 +29,27 @@ const handler = async (req, res) => {
   }
 
   try {
+    console.log('=== API CALL ===');
+    console.log('Method:', req.method);
+    console.log('Body type:', typeof req.body);
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    
     const { email, subject, html } = req.body;
 
     if (!email || !subject || !html) {
-      console.error('Missing fields:', { 
+      console.error('❌ Missing fields:', { 
         hasEmail: !!email, 
         hasSubject: !!subject, 
         hasHtml: !!html,
         body: req.body 
       });
-      return res.status(400).json({ error: 'Missing required fields: email, subject, and html are all required' });
+      return res.status(400).json({ 
+        error: 'Missing required fields: email, subject, and html are all required',
+        received: req.body
+      });
     }
 
-    console.log('Sending email to:', email);
+    console.log('✅ Sending email to:', email);
 
     // Gunakan SendGrid API (gratis dan reliable)
     const sendgridApiKey = process.env.SENDGRID_API_KEY;
