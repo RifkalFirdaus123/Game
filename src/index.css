@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  /* Helps for frantic mobile tapping. */
+  body {
+    overscroll-behavior-y: contain;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@keyframes timer-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes gauntlet-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.gauntlet-enter {
+  animation: gauntlet-enter 220ms ease-out both;
+}
+
+.timer-shrink-anim {
+  transform-origin: left;
+  animation-name: timer-shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
