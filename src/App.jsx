@@ -1011,33 +1011,39 @@ function EmailInputStage({ onSuccess, emailTemplate }) {
         .replaceAll("{{link}}", dummyLink) ||
       "Halo {{name}}! Klik tautan berikut: {{link}}";
 
-    // Dummy async: simulate 1-second delay for EmailJS / serverless integration.
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     try {
-      const resp = await fetch("/api/send-email", {
+      const apiKey = import.meta.env.VITE_RESEND_API_KEY;
+      if (!apiKey) {
+        throw new Error("API key tidak tersedia. Hubungi admin.");
+      }
+
+      const resp = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-          name: nameTrimmed,
-          email: emailTrimmed,
-          template: emailTemplate
+          from: "Gauntlet Game <onboarding@resend.dev>",
+          to: emailTrimmed,
+          subject: subject,
+          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><h2>${subject}</h2><p>${body.replace(/\n/g, "<br>")}</p></div>`
         })
       });
 
       if (!resp.ok) {
         const data = await resp.json().catch(() => null);
-        throw new Error(data?.error || "Gagal mengirim email.");
+        throw new Error(data?.message || "Gagal mengirim email.");
       }
+
+      setIsSubmitting(false);
+      onSuccess();
     } catch (err) {
       setIsSubmitting(false);
       setError(err?.message || "Gagal mengirim email.");
-      return;
     }
-
-    setIsSubmitting(false);
-    onSuccess();
   }
 
   return (
