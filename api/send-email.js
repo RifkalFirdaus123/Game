@@ -1,5 +1,3 @@
-const nodemailer = require('nodemailer');
-
 const handler = async (req, res) => {
   // Handle CORS
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -30,33 +28,43 @@ const handler = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: email, subject, and html are all required' });
     }
 
-    // Validasi config SMTP
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.error('SMTP_USER / SMTP_PASS not configured');
-      return res.status(500).json({ error: 'SMTP is not configured on server' });
+    // Validasi API key Brevo
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (!brevoApiKey) {
+      console.error('BREVO_API_KEY not configured');
+      return res.status(500).json({ error: 'Email service not configured' });
     }
 
-    // Konfigurasi SMTP transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+    // Kirim email via Brevo API
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': brevoApiKey,
+        'Content-Type': 'application/json'
       },
+      body: JSON.stringify({
+        to: [{ email: email }],
+        sender: { 
+          name: 'Gauntlet Game',
+          email: process.env.BREVO_SENDER_EMAIL || 'noreply@gauntletgame.com'
+        },
+        subject: subject,
+        htmlContent: html
+      })
     });
 
-    // Kirim email
-    const info = await transporter.sendMail({
-      from: `Gauntlet Game <${process.env.SMTP_USER}>`,
-      to: email,
-      subject,
-      html,
-    });
+    const data = await response.json();
 
-    console.log('Email sent successfully:', info.messageId);
-    return res.status(200).json({ success: true, id: info.messageId });
+    if (!response.ok) {
+      console.error('Brevo API error:', {
+        status: response.status,
+        data: data
+      });
+      return res.status(response.status).json({ error: data.message || 'Failed to send email' });
+    }
+
+    console.log('Email sent successfully via Brevo:', data.messageId);
+    return res.status(200).json({ success: true, id: data.messageId });
   } catch (error) {
     console.error("Send email error:", error);
     return res.status(500).json({ error: error.message });
