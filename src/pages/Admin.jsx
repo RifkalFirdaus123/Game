@@ -106,18 +106,31 @@ function AdminEmailEditor({ emailTemplate, setEmailTemplate, onBackToGame, onTes
         .replaceAll("{{email}}", testEmail)
         .replaceAll("{{link}}", "https://example.com");
       
-      const resp = await fetch("/api/test-email", {
+      const apiKey = import.meta.env.VITE_RESEND_API_KEY;
+      if (!apiKey) {
+        throw new Error("API key tidak tersedia. Hubungi admin.");
+      }
+
+      const resp = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-          email: testEmail,
-          template: emailTemplate
+          from: "Gauntlet Game <onboarding@resend.dev>",
+          to: testEmail,
+          subject: subject,
+          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;"><h2>${subject}</h2><p>${body.replace(/\n/g, "<br>")}</p></div>`
         })
       });
 
       if (resp.ok) {
         setTestEmailSent(true);
         setTimeout(() => setTestEmailSent(false), 3000);
+      } else {
+        const data = await resp.json();
+        throw new Error(data?.message || "Gagal mengirim test email");
       }
     } catch (err) {
       console.error("Test email error:", err);
