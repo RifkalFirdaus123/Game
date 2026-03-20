@@ -1188,7 +1188,7 @@ export default function App() {
         <>
           <GameContainer
             title="Halo semuanya"
-            subtitle="Jadi saye iseng buat daget biar lebe lama dan org yg nd buka web nye nda ngeh. jadi ya gini lah."
+            subtitle="jadi ini anjay"
           >
             <StartStage 
               onStart={() => setCurrentStep(1)} 
