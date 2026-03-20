@@ -103,7 +103,7 @@ function StartStage({ onStart, onAdmin }) {
       </button>
 
       <div className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
-        silekan. ha btw di bawah ni stiker nye bise di tekan ye
+        silekan. 
       </div>
     </div>
   );
@@ -1213,7 +1213,7 @@ export default function App() {
                 }
                 secondContent={
                   <img
-                    src="/images/opet.jpg"
+                    src="/images/tulalit.png"
                     alt="Idulfitri decoration - King"
                     style={{
                       width: '100%',
